@@ -1,22 +1,22 @@
+mod cup;
 mod migrations;
 mod qr;
-mod cup;
 
+use crate::cup::{create_cup, get_cup};
 use askama::Template;
+use async_trait::async_trait;
+use cot::admin::AdminApp;
+use cot::auth::db::{DatabaseUser, DatabaseUserApp};
 use cot::cli::CliMetadata;
+use cot::common_types::Password;
 use cot::db::migrations::SyncDynMigration;
 use cot::html::Html;
 use cot::middleware::{AuthMiddleware, LiveReloadMiddleware, SessionMiddleware};
 use cot::project::{MiddlewareContext, RegisterAppsContext, RootHandlerBuilder};
+use cot::router::method::{get, post};
 use cot::router::{Route, Router};
 use cot::static_files::{StaticFile, StaticFilesMiddleware};
-use cot::{App, AppBuilder, BoxedHandler, Project, static_files, ProjectContext};
-use async_trait::async_trait;
-use cot::admin::AdminApp;
-use cot::auth::db::{DatabaseUser, DatabaseUserApp};
-use cot::common_types::Password;
-use cot::router::method::{get, post};
-use crate::cup::{create_cup, get_cup};
+use cot::{static_files, App, AppBuilder, BoxedHandler, Project, ProjectContext};
 
 #[derive(Debug, Template)]
 #[template(path = "index.html")]

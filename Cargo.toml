@@ -10,6 +10,7 @@ cot = { version = "0.3.0", features = ["full"] }
 qrcode = { version = "0.14.1", default-features = false, features = ["svg"] }
 quircs = "0.10.2"
 image = "0.25.6"
+serde = { version = "1.0.219", features = ["derive"] }
 
 [dev-dependencies]
 resvg = "0.45.1"

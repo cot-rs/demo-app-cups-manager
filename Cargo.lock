@@ -765,6 +765,7 @@ dependencies = [
  "qrcode",
  "quircs",
  "resvg",
+ "serde",
 ]
 
 [[package]]
