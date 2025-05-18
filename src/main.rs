@@ -38,18 +38,18 @@ impl App for DemoAppCupsManagerApp {
     }
     async fn init(&self, context: &mut ProjectContext) -> cot::Result<()> {
         // Check if admin user exists
-        let admin_username = std::env::var("ADMIN_USER")
-            .unwrap_or_else(|_| "admin".to_string());
+        let admin_username = std::env::var("ADMIN_USER").unwrap_or_else(|_| "admin".to_string());
         let user = DatabaseUser::get_by_username(context.database(), &*admin_username).await?;
         if user.is_none() {
-            let password = std::env::var("ADMIN_PASSWORD")
-                .unwrap_or_else(|_| "password".to_string());
+            let password =
+                std::env::var("ADMIN_PASSWORD").unwrap_or_else(|_| "password".to_string());
             // Create admin user
             DatabaseUser::create_user(
                 context.database(),
                 &admin_username,
-                &Password::new(&password)
-            ).await?;
+                &Password::new(&password),
+            )
+            .await?;
         }
         Ok(())
     }
@@ -79,7 +79,7 @@ impl Project for DemoAppCupsManagerProject {
     }
 
     fn register_apps(&self, apps: &mut AppBuilder, _context: &RegisterAppsContext) {
-        apps.register(DatabaseUserApp::new());  // Needed for admin authentication
+        apps.register(DatabaseUserApp::new()); // Needed for admin authentication
         apps.register_with_views(AdminApp::new(), "/admin"); // Register the admin app
         apps.register_with_views(DemoAppCupsManagerApp, "");
     }
