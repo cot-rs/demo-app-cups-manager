@@ -1,4 +1,5 @@
 mod migrations;
+mod qr;
 
 use askama::Template;
 use cot::cli::CliMetadata;

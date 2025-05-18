@@ -7,3 +7,9 @@ edition = "2021"
 askama = "0.14"
 async-trait = "0.1.88"
 cot = { version = "0.3.0", features = ["full"] }
+qrcode = { version = "0.14.1", default-features = false, features = ["svg"] }
+quircs = "0.10.2"
+image = "0.25.6"
+
+[dev-dependencies]
+resvg = "0.45.1"
