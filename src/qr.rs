@@ -1,4 +1,4 @@
-
+/// Generates a QR code from the given data into SVG XML format.
 pub fn generate_qr_code<D: AsRef<[u8]>>(data: D) -> qrcode::QrResult<String> {
     let qr = qrcode::QrCode::new(data)?;
     let image = qr.render::<qrcode::render::svg::Color>()
@@ -7,6 +7,7 @@ pub fn generate_qr_code<D: AsRef<[u8]>>(data: D) -> qrcode::QrResult<String> {
     Ok(image)
 }
 
+/// Scans a QR code from the given image data and returns the decoded text.
 pub fn scan_qr_code<D: AsRef<[u8]>>(data: D) -> Result<String, Box<dyn std::error::Error>> {
     // open the image from disk
     let img = image::load_from_memory(data.as_ref())?;
@@ -42,7 +43,7 @@ mod tests {
 
         use resvg::usvg;
         use resvg::tiny_skia;
-        
+
         let rtree = usvg::Tree::from_data(&qr_code.as_bytes(), &usvg::Options::default()).unwrap();
         let pixmap_size = rtree.size().to_int_size();
         let mut pixmap = tiny_skia::Pixmap::new(pixmap_size.width(), pixmap_size.height()).unwrap();
@@ -57,10 +58,10 @@ mod tests {
             pixmap_size.height(),
             pixmap.data().to_vec(),
         ).expect("could not construct an image");
-        
+
         let mut png = std::io::Cursor::new(Vec::new());
         parsed.write_to(&mut png, image::ImageFormat::Png).unwrap();
-        
+
         let decoded = super::scan_qr_code(png.get_ref()).unwrap();
         assert_eq!(decoded, data);
     }
