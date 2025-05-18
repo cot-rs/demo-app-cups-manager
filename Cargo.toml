@@ -6,11 +6,12 @@ edition = "2021"
 [dependencies]
 askama = "0.14"
 async-trait = "0.1.88"
-cot = { version = "0.3.0", features = ["full"] }
+cot = { version = "0.3.0", features = ["full", "openapi", "swagger-ui"] }
 qrcode = { version = "0.14.1", default-features = false, features = ["svg"] }
 quircs = "0.10.2"
 image = "0.25.6"
 serde = { version = "1.0.219", features = ["derive"] }
+schemars = "0.8.22"
 
 [dev-dependencies]
 resvg = "0.45.1"

@@ -12,6 +12,7 @@ use cot::{reverse_redirect, Error, StatusCode};
 use serde::Deserialize;
 use std::str::FromStr;
 use std::sync::Arc;
+use schemars::JsonSchema;
 
 pub async fn get_cup(RequestDb(db): RequestDb, Path(id): Path<i32>) -> cot::Result<String> {
     let cup = query!(Cup, $id == id)
@@ -116,6 +117,8 @@ async fn create_cup_impl(
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)] //, Form, AdminModel)]
+// TODO: implement deserialization for Auto and ForeignKey
+// #[derive(Deserialize, JsonSchema)]
 #[model]
 struct Cup {
     #[model(primary_key)]

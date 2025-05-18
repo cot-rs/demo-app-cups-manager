@@ -2,7 +2,7 @@ mod cup;
 mod migrations;
 mod qr;
 
-use crate::cup::{create_cup, get_cup, get_cup_qr, scan_cup_qr};
+use crate::cup::{create_cup, create_cup_form, get_cup, get_cup_qr, scan_cup_qr};
 use askama::Template;
 use async_trait::async_trait;
 use cot::admin::AdminApp;
@@ -17,6 +17,8 @@ use cot::router::method::{get, post};
 use cot::router::{Route, Router};
 use cot::static_files::{StaticFile, StaticFilesMiddleware};
 use cot::{static_files, App, AppBuilder, BoxedHandler, Project, ProjectContext};
+use cot::openapi::swagger_ui::SwaggerUi;
+use cot::router::method::openapi::{api_get, api_post};
 
 #[derive(Debug, Template)]
 #[template(path = "index.html")]
@@ -56,11 +58,16 @@ impl App for DemoAppCupsManagerApp {
 
     fn router(&self) -> Router {
         Router::with_urls([
-            Route::with_handler_and_name("/", index, "index"),
+            Route::with_handler_and_name("/", get(index), "index"),
             Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
-            Route::with_handler_and_name("/cup/{id}/qr", get(get_cup_qr), "qr-cup"),
+            // TODO: figure out cup deserialization first
+            // Route::with_api_handler_and_name("/cup/{id}", api_get(get_cup), "get-cup"),
+            Route::with_api_handler_and_name("/cup/{id}/qr", api_get(get_cup_qr), "qr-cup"),
             Route::with_handler_and_name("/cup", post(create_cup), "create-cup"),
-            Route::with_handler_and_name("/cup/scan", post(scan_cup_qr), "scan-cup"),
+            // TODO: figure out cup deserialization first
+            // Route::with_api_handler_and_name("/cup", api_post(create_cup), "create-cup"),
+            Route::with_handler_and_name("/cup/form", post(create_cup_form), "create-cup-form"),
+            Route::with_api_handler_and_name("/cup/scan", api_post(scan_cup_qr), "scan-cup"),
         ])
     }
 
@@ -83,6 +90,7 @@ impl Project for DemoAppCupsManagerProject {
     fn register_apps(&self, apps: &mut AppBuilder, _context: &RegisterAppsContext) {
         apps.register(DatabaseUserApp::new()); // Needed for admin authentication
         apps.register_with_views(AdminApp::new(), "/admin"); // Register the admin app
+        apps.register_with_views(SwaggerUi::new(), "/swagger");
         apps.register_with_views(DemoAppCupsManagerApp, "");
     }
 
