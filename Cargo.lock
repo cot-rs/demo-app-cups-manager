@@ -422,7 +422,9 @@ checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
 
 [[package]]
 name = "cot"
-version = "0.2.2"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af50109af4bf8b34f3d0bf34f44497acaf499d14ce3d1d05702b13ece853d7bc"
 dependencies = [
  "ahash",
  "askama",
@@ -435,15 +437,19 @@ dependencies = [
  "cot_macros",
  "derive_builder",
  "derive_more",
+ "digest",
+ "email_address",
  "fake",
  "form_urlencoded",
  "futures-core",
  "futures-util",
  "grass",
+ "hex",
  "hmac",
  "http",
  "http-body",
  "http-body-util",
+ "humantime",
  "indexmap",
  "mime_guess",
  "password-auth",
@@ -471,7 +477,9 @@ dependencies = [
 
 [[package]]
 name = "cot_codegen"
-version = "0.2.1"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "18b0bc21c91949ca80291bf3fec03a3d4fe26334a5650b94d1aea27cd8a9f399"
 dependencies = [
  "darling",
  "heck",
@@ -482,7 +490,9 @@ dependencies = [
 
 [[package]]
 name = "cot_macros"
-version = "0.2.1"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db727c0d2ab11c05a5a4006ab982298c3361a243f72e715333a0ca5512f929dd"
 dependencies = [
  "cot_codegen",
  "darling",
@@ -575,6 +585,15 @@ dependencies = [
  "darling_core",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "demo-app-cups-manager"
+version = "0.1.0"
+dependencies = [
+ "askama",
+ "async-trait",
+ "cot",
 ]
 
 [[package]]
@@ -702,6 +721,15 @@ name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "email_address"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e079f19b08ca6239f47f8ba8509c11cf3ea30095831f7fed61441475edd8c449"
 dependencies = [
  "serde",
 ]
@@ -1070,6 +1098,12 @@ name = "httpdate"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
+
+[[package]]
+name = "humantime"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b112acc8b3adf4b107a8ec20977da0273a8c386765a3ec0229bd500a1443f9f"
 
 [[package]]
 name = "hyper"
@@ -3113,12 +3147,4 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "demo-app-cups-manager"
-version = "0.1.0"
-dependencies = [
- "askama",
- "cot",
 ]
