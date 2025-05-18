@@ -1,15 +1,17 @@
+use crate::qr::{generate_qr_code, scan_qr_code};
 use cot::auth::db::DatabaseUser;
 use cot::auth::{Auth, UserId};
 use cot::db::{model, query, Auto, Database, ForeignKey, Model};
 use cot::form::{Form, FormResult};
 use cot::json::Json;
 use cot::request::extractors::{Path, RequestDb, RequestForm};
+use cot::request::Request;
 use cot::response::{IntoResponse, Response};
 use cot::router::Urls;
 use cot::{reverse_redirect, Error, StatusCode};
 use serde::Deserialize;
+use std::str::FromStr;
 use std::sync::Arc;
-use crate::qr::generate_qr_code;
 
 pub async fn get_cup(RequestDb(db): RequestDb, Path(id): Path<i32>) -> cot::Result<String> {
     let cup = query!(Cup, $id == id)
@@ -56,15 +58,34 @@ pub async fn create_cup_form(
 }
 
 pub async fn get_cup_qr(RequestDb(db): RequestDb, Path(id): Path<i32>) -> cot::Result<Response> {
-    let cup = query!(Cup, $id == id)
-        .get(&db)
-        .await?;
+    let cup = query!(Cup, $id == id).get(&db).await?;
 
     let Some(cup) = cup else {
-        return "Model not found".with_status(StatusCode::NOT_FOUND).into_response();
+        return "Model not found"
+            .with_status(StatusCode::NOT_FOUND)
+            .into_response();
     };
 
-    generate_qr_code(cup.id.unwrap().to_string().as_bytes()).map_err(|err| Error::custom(format!("{:?}", err))).into_response()
+    generate_qr_code(cup.id.unwrap().to_string().as_bytes())
+        .map_err(|err| Error::custom(format!("{:?}", err)))
+        .into_response()
+}
+
+pub async fn scan_cup_qr(RequestDb(db): RequestDb, request: Request) -> cot::Result<Response> {
+    let data = request.into_body().into_bytes().await?;
+
+    let scanned = scan_qr_code(data).map_err(|e| Error::custom(e.to_string()))?;
+    let id = i32::from_str(&scanned).map_err(|e| Error::custom(e.to_string()))?;
+
+    let cup = query!(Cup, $id == id).get(&db).await?;
+
+    let Some(cup) = cup else {
+        return "Cup not found"
+            .with_status(StatusCode::NOT_FOUND)
+            .into_response();
+    };
+
+    print!("{cup}").into_response()
 }
 
 async fn create_cup_impl(
@@ -89,7 +110,9 @@ async fn create_cup_impl(
     };
     cup.insert(&db).await?;
 
-    ().with_status(StatusCode::CREATED).into_response()
+    print!("{cup}")
+        .with_status(StatusCode::CREATED)
+        .into_response()
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)] //, Form, AdminModel)]
