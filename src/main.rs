@@ -1,5 +1,6 @@
 mod migrations;
 mod qr;
+mod cup;
 
 use askama::Template;
 use cot::cli::CliMetadata;
@@ -14,6 +15,8 @@ use async_trait::async_trait;
 use cot::admin::AdminApp;
 use cot::auth::db::{DatabaseUser, DatabaseUserApp};
 use cot::common_types::Password;
+use cot::router::method::{get, post};
+use crate::cup::{create_cup, get_cup};
 
 #[derive(Debug, Template)]
 #[template(path = "index.html")]
@@ -52,7 +55,11 @@ impl App for DemoAppCupsManagerApp {
     }
 
     fn router(&self) -> Router {
-        Router::with_urls([Route::with_handler_and_name("/", index, "index")])
+        Router::with_urls([
+            Route::with_handler_and_name("/", index, "index"),
+            Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
+            Route::with_handler_and_name("/cup", post(create_cup), "create-cup"),
+        ])
     }
 
     fn migrations(&self) -> Vec<Box<SyncDynMigration>> {
