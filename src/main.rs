@@ -2,7 +2,7 @@ mod cup;
 mod migrations;
 mod qr;
 
-use crate::cup::{create_cup, get_cup};
+use crate::cup::{create_cup, get_cup, get_cup_qr};
 use askama::Template;
 use async_trait::async_trait;
 use cot::admin::AdminApp;
@@ -58,6 +58,7 @@ impl App for DemoAppCupsManagerApp {
         Router::with_urls([
             Route::with_handler_and_name("/", index, "index"),
             Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
+            Route::with_handler_and_name("/cup/{id}/qr", get(get_cup_qr), "qr-cup"),
             Route::with_handler_and_name("/cup", post(create_cup), "create-cup"),
         ])
     }

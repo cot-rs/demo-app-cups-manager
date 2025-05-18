@@ -6,9 +6,10 @@ use cot::json::Json;
 use cot::request::extractors::{Path, RequestDb, RequestForm};
 use cot::response::{IntoResponse, Response};
 use cot::router::Urls;
-use cot::{reverse_redirect, StatusCode};
+use cot::{reverse_redirect, Error, StatusCode};
 use serde::Deserialize;
 use std::sync::Arc;
+use crate::qr::generate_qr_code;
 
 pub async fn get_cup(RequestDb(db): RequestDb, Path(id): Path<i32>) -> cot::Result<String> {
     let cup = query!(Cup, $id == id)
@@ -52,6 +53,18 @@ pub async fn create_cup_form(
         FormResult::ValidationError(e) => todo!("show errors in frontend"),
     }
     //TODO: show successful path
+}
+
+pub async fn get_cup_qr(RequestDb(db): RequestDb, Path(id): Path<i32>) -> cot::Result<Response> {
+    let cup = query!(Cup, $id == id)
+        .get(&db)
+        .await?;
+
+    let Some(cup) = cup else {
+        return "Model not found".with_status(StatusCode::NOT_FOUND).into_response();
+    };
+
+    generate_qr_code(cup.id.unwrap().to_string().as_bytes()).map_err(|err| Error::custom(format!("{:?}", err))).into_response()
 }
 
 async fn create_cup_impl(
