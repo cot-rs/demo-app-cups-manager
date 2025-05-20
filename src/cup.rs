@@ -7,10 +7,13 @@ use cot::db::{model, query, Auto, Database, ForeignKey, Model};
 use cot::form::fields::InMemoryUploadedFile;
 use cot::form::{Form, FormContext, FormResult};
 use cot::html::Html;
+use cot::json::Json;
 use cot::request::extractors::{Path, RequestDb, RequestForm};
 use cot::response::{IntoResponse, Response};
 use cot::router::Urls;
 use cot::{reverse_redirect, Error, StatusCode};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 pub async fn create_cup_page(urls: Urls, auth: Auth) -> cot::Result<Response> {
@@ -62,6 +65,34 @@ pub async fn get_cup(
     };
 
     Ok(Html::new(template.render()?))
+}
+
+pub async fn create_cup(
+    RequestDb(db): RequestDb,
+    Json(input): Json<CreateCupApiForm>,
+) -> Json<CreateCupApiResponse> {
+    let mut cup = create_cup_impl(&db, input.owner, input.name).await.unwrap();
+
+    Json(CreateCupApiResponse {
+        id: cup.id.unwrap(),
+        owner: cup.owner.get(&db).await.unwrap().username().to_owned(),
+        name: cup.name,
+        active: cup.active,
+    })
+}
+
+#[derive(Debug, Form, JsonSchema, Deserialize)]
+pub struct CreateCupApiForm {
+    owner: i64,
+    name: String,
+}
+
+#[derive(Debug, JsonSchema, Serialize)]
+pub struct CreateCupApiResponse {
+    pub id: i32,
+    pub owner: String,
+    pub name: String,
+    pub active: bool,
 }
 
 pub async fn create_cup_form(

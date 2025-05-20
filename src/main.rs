@@ -50,6 +50,7 @@ impl App for DemoAppCupsManagerApp {
             Route::with_handler_and_name("/cup/scan", get(scan_cup_page), "scan-cup-page"),
             Route::with_handler_and_name("/cup/scan_form", post(scan_cup_form), "scan-cup-form"),
             Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
+            Route::with_api_handler_and_name("/api/cup/", api_post(create_cup), "create-cup"),
         ])
     }
 
