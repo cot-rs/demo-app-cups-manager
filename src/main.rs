@@ -45,6 +45,7 @@ impl App for DemoAppCupsManagerApp {
 
     fn router(&self) -> Router {
         Router::with_urls([
+            Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
         ])
     }
 
