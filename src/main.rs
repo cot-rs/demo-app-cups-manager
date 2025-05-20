@@ -53,7 +53,7 @@ impl App for DemoAppCupsManagerApp {
     }
 
     fn admin_model_managers(&self) -> Vec<Box<dyn AdminModelManager>> {
-        vec![]
+        vec![Box::new(DefaultAdminModelManager::<Cup>::new())]
     }
 }
 
