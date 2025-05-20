@@ -45,12 +45,6 @@ impl App for DemoAppCupsManagerApp {
 
     fn router(&self) -> Router {
         Router::with_urls([
-            Route::with_handler_and_name("/", get(create_cup_page), "index"),
-            Route::with_handler_and_name("/cup/form", post(create_cup_form), "create-cup-form"),
-            Route::with_handler_and_name("/cup/scan", get(scan_cup_page), "scan-cup-page"),
-            Route::with_handler_and_name("/cup/scan_form", post(scan_cup_form), "scan-cup-form"),
-            Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
-            Route::with_api_handler_and_name("/api/cup/", api_post(create_cup), "create-cup"),
         ])
     }
 
@@ -59,11 +53,7 @@ impl App for DemoAppCupsManagerApp {
     }
 
     fn admin_model_managers(&self) -> Vec<Box<dyn AdminModelManager>> {
-        vec![Box::new(DefaultAdminModelManager::<Cup>::new())]
-    }
-
-    fn static_files(&self) -> Vec<StaticFile> {
-        static_files!("css/main.css")
+        vec![]
     }
 }
 
