@@ -20,13 +20,13 @@ pub fn scan_qr_code<D: AsRef<[u8]>>(data: D) -> Result<String, Box<dyn std::erro
     let mut decoder = quircs::Quirc::default();
 
     // identify all qr codes
-    let codes = decoder.identify(
+    let mut codes = decoder.identify(
         img_gray.width() as usize,
         img_gray.height() as usize,
         &img_gray,
     );
 
-    for code in codes {
+    if let Some(code) = codes.next() {
         let decoded = code?.decode()?;
         let text = String::from_utf8(decoded.payload)?;
         return Ok(text);
@@ -37,8 +37,6 @@ pub fn scan_qr_code<D: AsRef<[u8]>>(data: D) -> Result<String, Box<dyn std::erro
 
 #[cfg(test)]
 mod tests {
-    use image::EncodableLayout;
-
     #[test]
     fn generate_qr_code() {
         let data = "Hello, world!";

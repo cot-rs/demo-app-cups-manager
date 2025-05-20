@@ -565,8 +565,7 @@ dependencies = [
 [[package]]
 name = "cot"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af50109af4bf8b34f3d0bf34f44497acaf499d14ce3d1d05702b13ece853d7bc"
+source = "git+https://github.com/cot-rs/cot.git?rev=b61e73b19eac200206cd22615c1b84c7dc8e58e4#b61e73b19eac200206cd22615c1b84c7dc8e58e4"
 dependencies = [
  "ahash",
  "aide",
@@ -595,6 +594,7 @@ dependencies = [
  "humantime",
  "indexmap",
  "mime_guess",
+ "multer",
  "password-auth",
  "pin-project-lite",
  "schemars",
@@ -623,8 +623,7 @@ dependencies = [
 [[package]]
 name = "cot_codegen"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18b0bc21c91949ca80291bf3fec03a3d4fe26334a5650b94d1aea27cd8a9f399"
+source = "git+https://github.com/cot-rs/cot.git?rev=b61e73b19eac200206cd22615c1b84c7dc8e58e4#b61e73b19eac200206cd22615c1b84c7dc8e58e4"
 dependencies = [
  "darling",
  "heck",
@@ -636,8 +635,7 @@ dependencies = [
 [[package]]
 name = "cot_macros"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db727c0d2ab11c05a5a4006ab982298c3361a243f72e715333a0ca5512f929dd"
+source = "git+https://github.com/cot-rs/cot.git?rev=b61e73b19eac200206cd22615c1b84c7dc8e58e4#b61e73b19eac200206cd22615c1b84c7dc8e58e4"
 dependencies = [
  "cot_codegen",
  "darling",
@@ -929,6 +927,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e079f19b08ca6239f47f8ba8509c11cf3ea30095831f7fed61441475edd8c449"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "encoding_rs"
+version = "0.8.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
+dependencies = [
+ "cfg-if",
 ]
 
 [[package]]
@@ -1901,6 +1908,23 @@ dependencies = [
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "multer"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83e87776546dc87511aa5ee218730c92b666d7264ab6ed41f9d215af9cd5224b"
+dependencies = [
+ "bytes",
+ "encoding_rs",
+ "futures-util",
+ "http",
+ "httparse",
+ "memchr",
+ "mime",
+ "spin",
+ "version_check",
 ]
 
 [[package]]

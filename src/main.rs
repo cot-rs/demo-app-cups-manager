@@ -2,34 +2,21 @@ mod cup;
 mod migrations;
 mod qr;
 
-use crate::cup::{create_cup, create_cup_form, get_cup, get_cup_qr, scan_cup_qr};
-use askama::Template;
+use crate::cup::*;
 use async_trait::async_trait;
-use cot::admin::AdminApp;
+use cot::admin::{AdminApp, AdminModelManager, DefaultAdminModelManager};
 use cot::auth::db::{DatabaseUser, DatabaseUserApp};
 use cot::cli::CliMetadata;
 use cot::common_types::Password;
 use cot::db::migrations::SyncDynMigration;
-use cot::html::Html;
 use cot::middleware::{AuthMiddleware, LiveReloadMiddleware, SessionMiddleware};
+use cot::openapi::swagger_ui::SwaggerUi;
 use cot::project::{MiddlewareContext, RegisterAppsContext, RootHandlerBuilder};
+use cot::router::method::openapi::api_post;
 use cot::router::method::{get, post};
 use cot::router::{Route, Router};
 use cot::static_files::{StaticFile, StaticFilesMiddleware};
 use cot::{static_files, App, AppBuilder, BoxedHandler, Project, ProjectContext};
-use cot::openapi::swagger_ui::SwaggerUi;
-use cot::router::method::openapi::{api_get, api_post};
-
-#[derive(Debug, Template)]
-#[template(path = "index.html")]
-struct IndexTemplate {}
-
-async fn index() -> cot::Result<Html> {
-    let index_template = IndexTemplate {};
-    let rendered = index_template.render()?;
-
-    Ok(Html::new(rendered))
-}
 
 struct DemoAppCupsManagerApp;
 
@@ -41,7 +28,7 @@ impl App for DemoAppCupsManagerApp {
     async fn init(&self, context: &mut ProjectContext) -> cot::Result<()> {
         // Check if admin user exists
         let admin_username = std::env::var("ADMIN_USER").unwrap_or_else(|_| "admin".to_string());
-        let user = DatabaseUser::get_by_username(context.database(), &*admin_username).await?;
+        let user = DatabaseUser::get_by_username(context.database(), &admin_username).await?;
         if user.is_none() {
             let password =
                 std::env::var("ADMIN_PASSWORD").unwrap_or_else(|_| "password".to_string());
@@ -58,21 +45,21 @@ impl App for DemoAppCupsManagerApp {
 
     fn router(&self) -> Router {
         Router::with_urls([
-            Route::with_handler_and_name("/", get(index), "index"),
-            Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
-            // TODO: figure out cup deserialization first
-            // Route::with_api_handler_and_name("/cup/{id}", api_get(get_cup), "get-cup"),
-            Route::with_api_handler_and_name("/cup/{id}/qr", api_get(get_cup_qr), "qr-cup"),
-            Route::with_handler_and_name("/cup", post(create_cup), "create-cup"),
-            // TODO: figure out cup deserialization first
-            // Route::with_api_handler_and_name("/cup", api_post(create_cup), "create-cup"),
+            Route::with_handler_and_name("/", get(create_cup_page), "index"),
             Route::with_handler_and_name("/cup/form", post(create_cup_form), "create-cup-form"),
-            Route::with_api_handler_and_name("/cup/scan", api_post(scan_cup_qr), "scan-cup"),
+            Route::with_handler_and_name("/cup/scan", get(scan_cup_page), "scan-cup-page"),
+            Route::with_handler_and_name("/cup/scan_form", post(scan_cup_form), "scan-cup-form"),
+            Route::with_handler_and_name("/cup/{id}", get(get_cup), "get-cup"),
+            Route::with_api_handler_and_name("/api/cup/", api_post(create_cup), "create-cup"),
         ])
     }
 
     fn migrations(&self) -> Vec<Box<SyncDynMigration>> {
         cot::db::migrations::wrap_migrations(migrations::MIGRATIONS)
+    }
+
+    fn admin_model_managers(&self) -> Vec<Box<dyn AdminModelManager>> {
+        vec![Box::new(DefaultAdminModelManager::<Cup>::new())]
     }
 
     fn static_files(&self) -> Vec<StaticFile> {
