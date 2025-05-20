@@ -1,15 +1,17 @@
-use crate::qr::generate_qr_code;
+use crate::qr::{generate_qr_code, scan_qr_code};
 use askama::Template;
 use cot::admin::AdminModel;
 use cot::auth::db::DatabaseUser;
 use cot::auth::Auth;
 use cot::db::{model, query, Auto, Database, ForeignKey, Model};
+use cot::form::fields::InMemoryUploadedFile;
 use cot::form::{Form, FormContext, FormResult};
 use cot::html::Html;
 use cot::request::extractors::{Path, RequestDb, RequestForm};
 use cot::response::{IntoResponse, Response};
 use cot::router::Urls;
-use cot::{reverse_redirect, Error};
+use cot::{reverse_redirect, Error, StatusCode};
+use std::str::FromStr;
 
 pub async fn create_cup_page(urls: Urls, auth: Auth) -> cot::Result<Response> {
     #[derive(Debug, Template)]
@@ -101,6 +103,48 @@ async fn create_cup_impl(db: &Database, owner_id: i64, name: String) -> cot::Res
     cup.insert(db).await?;
 
     Ok(cup)
+}
+
+pub async fn scan_cup_page(urls: Urls) -> cot::Result<Html> {
+    #[derive(Debug, Template)]
+    #[template(path = "scan_cup.html")]
+    struct ScanCupTemplate<'a> {
+        urls: &'a Urls,
+        form: <ScanCupForm as Form>::Context,
+    }
+
+    let template = ScanCupTemplate {
+        urls: &urls,
+        form: <<ScanCupForm as Form>::Context as FormContext>::new(),
+    };
+
+    Ok(Html::new(template.render()?))
+}
+
+#[derive(Debug, Form)]
+pub struct ScanCupForm {
+    file: InMemoryUploadedFile,
+}
+
+pub async fn scan_cup_form(
+    urls: Urls,
+    RequestDb(db): RequestDb,
+    RequestForm(input): RequestForm<ScanCupForm>,
+) -> cot::Result<Response> {
+    let data = input.unwrap().file.content().clone();
+
+    let scanned = scan_qr_code(data).map_err(|e| Error::custom(e.to_string()))?;
+    let id = i32::from_str(&scanned).map_err(|e| Error::custom(e.to_string()))?;
+
+    let cup = query!(Cup, $id == id).get(&db).await?;
+
+    let Some(cup) = cup else {
+        return "Cup not found"
+            .with_status(StatusCode::NOT_FOUND)
+            .into_response();
+    };
+
+    Ok(reverse_redirect!(urls, "get-cup", id = cup.id.unwrap())?)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Form, AdminModel)]
